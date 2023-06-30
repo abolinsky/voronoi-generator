@@ -1,6 +1,6 @@
 # voronoi-generator
 
-[candy manhattan](img/candy_manhattan.png)
+![candy manhattan](img/candy_manhattan.png)
 
 ## build
 ```
