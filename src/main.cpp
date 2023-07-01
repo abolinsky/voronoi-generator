@@ -3,10 +3,11 @@
 
 #include <iostream>
 #include <fstream>
+#include <string>
 #include <vector>
 #include <tuple>
 
-auto handleArguments(int argc, char** argv) -> std::tuple<int, int, int, Palette, Style>;
+auto handleArguments(int argc, char** argv) -> std::tuple<int, int, int, Palette, Style, std::string>;
 auto makeErrorMessage(const std::string& message) -> std::string;
 auto makeUsageMessage(const std::string& program) -> std::string;
 
@@ -17,15 +18,17 @@ auto createPaletteFromFile(std::ifstream& file) -> Palette;
 auto parseStyle(const std::string& style) -> Style;
 
 const Palette default_palette {{ {116, 0, 184}, {105, 48, 195}, {94, 96, 206}, {83, 144, 217}, {78, 168, 222}, {72, 191, 227}, {86, 207, 225}, {100, 223, 223}, {114, 239, 221}, {128, 255, 219} }};
-
+const std::string default_filename { "image.ppm" };
 
 auto main(int argc, char** argv) -> int {
-    const auto [ width, height, cells, palette, style ] = handleArguments(argc, argv);
+    const auto [ width, height, cells, palette, style, filename ] = handleArguments(argc, argv);
+
     Image image { width, height };
     image.makeVoronoi(cells, palette, style);
+    image.write(filename);
 }
 
-auto handleArguments(int argc, char** argv) -> std::tuple<int, int, int, Palette, Style> {
+auto handleArguments(int argc, char** argv) -> std::tuple<int, int, int, Palette, Style, std::string> {
     ArgumentParser arg_parser;
     if (!arg_parser.init(argc, argv)) {
         std::cerr << makeErrorMessage("The arguments could not be parsed") << std::endl;
@@ -47,7 +50,8 @@ auto handleArguments(int argc, char** argv) -> std::tuple<int, int, int, Palette
 
     const auto palette_str { arg_parser.getOptional<std::string>("p", "") };
     const auto style_str { arg_parser.getOptional<std::string>("s", "") };
-    if (!palette_str || !style_str) {
+    const auto output { arg_parser.getOptional<std::string>("o", default_filename) };
+    if (!palette_str || !style_str || !output) {
         std::cerr << makeErrorMessage("The optional arguments could not be parsed") << std::endl;
         std::exit(-1);
     }
@@ -55,7 +59,7 @@ auto handleArguments(int argc, char** argv) -> std::tuple<int, int, int, Palette
     const Palette palette { parsePalette(*palette_str)};
     const Style style { parseStyle(*style_str) };
 
-    return { *width, *height, *cells, palette, style };
+    return { *width, *height, *cells, palette, style, *output };
 }
 
 auto makeErrorMessage(const std::string& message) -> std::string {
@@ -63,12 +67,13 @@ auto makeErrorMessage(const std::string& message) -> std::string {
 }
 
 auto makeUsageMessage(const std::string& program) -> std::string {
-    const std::string usage("Usage: " + std::string(program) + " width height cells [-p palette] [-s style]\n"
+    const std::string usage("Usage: " + std::string(program) + " width height cells [-p palette] [-s style] [-o output]\n"
                             "    width: desired image width\n"
                             "    height: desired image height\n"
                             "    cells: desired number of voronoi cells\n"
                             "    -p palette: where palette is a file containing one color per line in rgb, e.g. 255 0 127\n"
-                            "    -s style: where style is one of the following: (ma)nhattan (default), (eu)clidean, or (mi)nkowski\n");
+                            "    -s style: where style is one of the following: (ma)nhattan (default), (eu)clidean, or (mi)nkowski\n"
+                            "    -o output: where output is the name of the generated image file. Defaults to image.ppm\n");
     return usage;
 }
 

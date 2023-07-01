@@ -8,20 +8,12 @@ auto Image::makeVoronoi(int cells, const Palette& palette, Style style) -> void 
     generateRegionPoints(cells);
     generateRegionColors(palette);
     fillRegions(style);
-    generate();
 }
 
-auto Image::generate() -> void {
-    outputHeader();
-    outputPixels();
-}
-
-auto Image::draw(const Point& point) -> void {
-    draw(point.y * width + point.x, point.color);
-}
-
-auto Image::draw(int i, Color color) -> void {
-    pixels[i] = color;
+auto Image::write(std::string_view filename) const -> void {
+    std::ofstream fstream(filename);
+    writeHeader(fstream);
+    writePixels(fstream);
 }
 
 auto Image::generateRegionPoints(int num_regions) -> void {
@@ -37,34 +29,9 @@ auto Image::generateRegionColors(const Palette& palette) -> void {
     }
 }
 
-auto Image::euclideanDistance(const Point& from_point, const Point& to_point) -> double {
-    double distance { sqrt(pow(to_point.x - from_point.x, 2) + pow(to_point.y - from_point.y, 2)) };
-    return distance;
-}
-
-auto Image::manhattanDistance(const Point& from_point, const Point& to_point) -> double {
-    double distance { static_cast<double>(abs(to_point.x - from_point.x) + abs(to_point.y - from_point.y)) };
-    return distance;
-}
-
-auto Image::minkowskiDistance(const Point& from_point, const Point& to_point) -> double {
-    constexpr double p { 0.66 };
-    double distance { pow(pow(abs(to_point.x - from_point.x), p) + pow(abs(to_point.y - from_point.y), p), (1/p)) };
-    return distance;
-}
-
-auto Image::calculateDistance(Style style, const Point& from_point, const Point& to_point) -> double {
-    switch (style) {
-        case Style::euclidean : return euclideanDistance(from_point, to_point);
-        case Style::manhattan : return manhattanDistance(from_point, to_point);
-        case Style::minkowski : return minkowskiDistance(from_point, to_point);
-        default : return euclideanDistance(from_point, to_point);
-    }
-}
-
 auto Image::fillRegions(Style style) -> void {
-    for (int i {}; i < width * height; ++i) {
-        Point current_pixel { i % width, i / width };
+    for (int pixel_index {}; pixel_index < width * height; ++pixel_index) {
+        Point current_pixel { pixel_index % width, pixel_index / width };
 
         Point closest_point { INT_MAX, INT_MAX };
         double closest_distance { INFINITY };
@@ -78,24 +45,52 @@ auto Image::fillRegions(Style style) -> void {
             }
         }
 
-        draw(i, closest_point.color);
+        draw(pixel_index, closest_point.color);
     }
 }
 
-auto Image::outputPixel(const Color& color) const -> void {
-    std::cout << static_cast<int>(color.r) << " "
-                << static_cast<int>(color.g) << " "
-                << static_cast<int>(color.b) << '\n';
+auto Image::calculateDistance(Style style, const Point& from_point, const Point& to_point) -> double {
+    switch (style) {
+        case Style::euclidean : return euclideanDistance(from_point, to_point);
+        case Style::manhattan : return manhattanDistance(from_point, to_point);
+        case Style::minkowski : return minkowskiDistance(from_point, to_point);
+        default : return euclideanDistance(from_point, to_point);
+    }
+}
+auto Image::manhattanDistance(const Point& from_point, const Point& to_point) -> double {
+    double distance { static_cast<double>(abs(to_point.x - from_point.x) + abs(to_point.y - from_point.y)) };
+    return distance;
 }
 
-auto Image::outputPixels() const -> void {
+auto Image::euclideanDistance(const Point& from_point, const Point& to_point) -> double {
+    double distance { sqrt(pow(to_point.x - from_point.x, 2) + pow(to_point.y - from_point.y, 2)) };
+    return distance;
+}
+
+auto Image::minkowskiDistance(const Point& from_point, const Point& to_point) -> double {
+    constexpr double p { 0.66 };
+    double distance { pow(pow(abs(to_point.x - from_point.x), p) + pow(abs(to_point.y - from_point.y), p), (1/p)) };
+    return distance;
+}
+
+auto Image::draw(const Point& point) -> void {
+    draw(point.y * width + point.x, point.color);
+}
+
+auto Image::draw(int pixel_index, Color color) -> void {
+    pixels[pixel_index] = color;
+}
+
+auto Image::writeHeader(std::ofstream& fstream) const -> void {
+    fstream << "P3\n" << width << ' ' << height << "\n255\n";
+}
+
+auto Image::writePixels(std::ofstream& fstream) const -> void {
     for (const Color& pixel : pixels) {
-        outputPixel(pixel);
+        fstream << static_cast<int>(pixel.r) << " "
+                << static_cast<int>(pixel.g) << " "
+                << static_cast<int>(pixel.b) << '\n';
     }
-}
-
-auto Image::outputHeader() const -> void {
-    std::cout << "P3\n" << width << ' ' << height << "\n255\n";
 }
 
 auto getRandomColorFromPalette(const Palette& palette) -> Color {
