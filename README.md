@@ -1,6 +1,6 @@
 # voronoi-generator
 
-![candy manhattan](img/candy_manhattan.png)
+![candy manhattan](example.png)
 
 ## build
 ```
@@ -9,8 +9,8 @@ g++ -std=c++20 src/*.cpp -o voronoi
 
 ## run
 ```
-./voronoi 3840 2160 500 -p palettes/candy -o candy_manhattan.ppm
-open candy_manhattan.ppm
+./voronoi 3840 2160 500 -p palettes/candy -o images/candy_manhattan.ppm
+open images/candy_manhattan.ppm
 ```
 
 ## help
