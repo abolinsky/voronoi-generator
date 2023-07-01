@@ -1,6 +1,7 @@
 #include "image.h"
 
 #include <iostream>
+#include <limits>
 
 Image::Image(int width, int height) : width(width), height(height), pixels(width * height) {}
 
@@ -11,7 +12,7 @@ auto Image::makeVoronoi(int cells, const Palette& palette, Style style) -> void 
 }
 
 auto Image::write(std::string_view filename) const -> void {
-    std::ofstream fstream(filename);
+    std::ofstream fstream(filename.data());
     writeHeader(fstream);
     writePixels(fstream);
 }
@@ -33,8 +34,8 @@ auto Image::fillRegions(Style style) -> void {
     for (int pixel_index {}; pixel_index < width * height; ++pixel_index) {
         Point current_pixel { pixel_index % width, pixel_index / width };
 
-        Point closest_point { INT_MAX, INT_MAX };
-        double closest_distance { INFINITY };
+        Point closest_point { std::numeric_limits<int>::max(), std::numeric_limits<int>::max() };
+        double closest_distance { std::numeric_limits<double>::max() };
 
         for (const auto& point : points) {
             double current_distance { calculateDistance(style, current_pixel, point) };

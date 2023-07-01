@@ -4,6 +4,8 @@
 #include <string_view>
 #include <iostream>
 #include <optional>
+#include <vector>
+#include <unordered_map>
 
 class ArgumentParser {
 public:
@@ -67,7 +69,7 @@ private:
     template <typename T>
     auto extractArg(std::string_view original_arg) const noexcept -> auto {
         T arg {};
-        std::istringstream iss { std::string(original_arg) };
+        std::istringstream iss { original_arg.data() };
         if(!(iss >> arg)) {
             return std::optional<T>{};
         }
