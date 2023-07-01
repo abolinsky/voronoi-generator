@@ -4,7 +4,7 @@
 
 ## build
 ```
-g++ -std=c++20 src/*.cpp -o voronoi
+g++ -O3 -std=c++20 src/*.cpp -o voronoi
 ```
 
 ## run
