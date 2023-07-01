@@ -4,7 +4,7 @@
 
 ## build
 ```
-g++ -std=c++20 -Wall -Werror -Wextra -fno-exceptions *.cpp -o voronoi
+g++ -std=c++20 src/*.cpp -o voronoi
 ```
 
 ## run
