@@ -1,27 +1,10 @@
 #pragma once
 
+#include "utilities.h"
+
 #include <vector>
-#include <random>
 #include <string_view>
 #include <fstream>
-
-struct Color {
-    uint8_t r {};
-    uint8_t g {};
-    uint8_t b {};
-};
-
-using Palette = std::vector<Color>;
-
-struct Point {
-    int x {};
-    int y {};
-    Color color {};
-};
-
-auto print(const Point& point) -> void;
-
-enum class Style { euclidean, manhattan, minkowski };
 
 
 class Image {
@@ -35,7 +18,7 @@ public:
     const int height;
 
 private:
-    auto generateRegionPoints(int num_regions) -> void;
+    auto generateRegionPoints(int regions) -> void;
     auto generateRegionColors(const Palette& palette) -> void;
     auto fillRegions(Style style) -> void;
 
@@ -54,14 +37,3 @@ private:
     std::vector<Point> points;
     std::vector<Color> pixels;
 };
-
-template <typename T>
-auto generateRandomNumber(T min, T max) -> T {
-    std::random_device rd;
-    std::uniform_int_distribution<T> dist(min, max - 1);
-    return dist(rd);
-}
-
-auto generateRandomPoint(int width, int height) -> Point;
-auto generateRandomColor(const Palette& palette) -> Color;
-auto getRandomColorFromPalette(const Palette& palette) -> Color;
