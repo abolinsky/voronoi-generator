@@ -43,7 +43,7 @@ auto makeErrorMessage(const std::string& message) -> std::string {
 }
 
 auto makeUsageMessage(const std::string& program) -> std::string {
-    const std::string usage("Usage: " + std::string(program) + " width height cells [-p palette] [-s style] [-o output]\n"
+    const std::string usage("Usage: " + std::string(program) + " <width> <height> <cells> [-p palette] [-s style] [-o output]\n"
                             "    width: desired image width\n"
                             "    height: desired image height\n"
                             "    cells: desired number of voronoi cells\n"
