@@ -78,11 +78,18 @@ auto createPaletteFromFile(std::ifstream& file) -> Palette {
 
     std::string line;
     while (std::getline(file, line)) {
-        auto iss = std::istringstream { line };
+        if (line.size() != 7 || line[0] != '#') {
+            std::cerr << makeErrorMessage("Invalid hex color code: " + line) << std::endl;
+            std::exit(-1);
+        }
 
         int r, g, b;
-        if (!(iss >> r >> g >> b)) {
-            std::cerr << makeErrorMessage("Cannot parse colors: " + line) << std::endl;
+        try {
+            r = std::stoi(line.substr(1, 2), nullptr, 16);
+            g = std::stoi(line.substr(3, 2), nullptr, 16);
+            b = std::stoi(line.substr(5, 2), nullptr, 16);
+        } catch (const std::invalid_argument& ia) {
+            std::cerr << makeErrorMessage("Cannot parse hex color code: " + line) << std::endl;
             std::exit(-1);
         }
 
